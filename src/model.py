@@ -6,6 +6,8 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.decomposition import PCA
 from itertools import combinations
+from sklearn.cluster import KMeans
+from scipy.spatial.distance import cosine
 
 # Load and process data
 df = pd.read_csv("../data/data_cleaned.csv")
@@ -68,17 +70,29 @@ new_words = [str(word) for word in new_words]
 # Get embeddings for new words (in batch)
 new_embeddings = model.encode(new_words, batch_size=32)
 
-# Predict pairs of new words
-pair_predictions = {}
-for (i, j) in combinations(range(len(new_words)), 2):
-    pair = (new_words[i], new_words[j])
-    features = np.hstack((new_embeddings[i], new_embeddings[j])).reshape(1, -1)
-    
-    # Optionally reduce dimensionality for new word pairs (same PCA transformation)
-    features_reduced = pca.transform(features)
-    
-    prediction = clf.predict(features_reduced)
-    pair_predictions[pair] = prediction
+# Calculate pairwise cosine similarities
+cosine_similarities = np.zeros((len(new_words), len(new_words)))
 
-# Output pair predictions
-print(pair_predictions)
+for i in range(len(new_words)):
+    for j in range(i + 1, len(new_words)):
+        cosine_similarities[i, j] = 1 - cosine(new_embeddings[i], new_embeddings[j])
+        cosine_similarities[j, i] = cosine_similarities[i, j]
+
+# Use KMeans clustering to group words into 4 clusters based on similarity
+kmeans = KMeans(n_clusters=4, random_state=42)
+clusters = kmeans.fit_predict(cosine_similarities)
+
+# Arrange words into 4x4 matrix by cluster
+matrix = np.full((4, 4), None, dtype=object)  # Initialize with None or any placeholder
+
+for cluster_id in range(4):
+    cluster_words = [new_words[i] for i in range(len(new_words)) if clusters[i] == cluster_id]
+    
+    # Ensure each cluster fits into the matrix row with at most 4 words
+    # If a cluster has more than 4 words, truncate it, or if fewer, fill with None
+    cluster_words = cluster_words[:4]  # Truncate to 4 words if necessary
+    matrix[cluster_id, :len(cluster_words)] = cluster_words
+
+# Output the 4x4 matrix of related words
+print("4x4 Word Similarity Matrix:")
+print(matrix)
