@@ -19,7 +19,7 @@ df = df.dropna(subset=['Word', 'Group Name'])
 df_sample = df.sample(n=8257, random_state=42)
 
 # Pre-trained embedding model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('all-mpnet-base-v2')
 
 # Prepare pairwise data for training (optional)
 pairs = []
