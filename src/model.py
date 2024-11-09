@@ -16,7 +16,7 @@ df = pd.read_csv("../data/data_cleaned.csv")
 df = df.dropna(subset=['Word', 'Group Name'])
 
 # Sample 256 rows for faster training
-df_sample = df.sample(n=256, random_state=42)
+df_sample = df.sample(n=2048, random_state=42)
 
 # Pre-trained embedding model
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -85,13 +85,20 @@ clusters = kmeans.fit_predict(cosine_similarities)
 # Arrange words into 4x4 matrix by cluster
 matrix = np.full((4, 4), None, dtype=object)  # Initialize with None or any placeholder
 
-for cluster_id in range(4):
-    cluster_words = [new_words[i] for i in range(len(new_words)) if clusters[i] == cluster_id]
-    
-    # Ensure each cluster fits into the matrix row with at most 4 words
-    # If a cluster has more than 4 words, truncate it, or if fewer, fill with None
-    cluster_words = cluster_words[:4]  # Truncate to 4 words if necessary
-    matrix[cluster_id, :len(cluster_words)] = cluster_words
+# Flatten the list of words into a 1D list, ensuring they are all used to fill the 4x4 matrix
+clustered_words = [new_words[i] for i in range(len(new_words))]
+
+# Shuffle the words to distribute them evenly across the 4x4 matrix
+np.random.shuffle(clustered_words)
+
+# Fill the matrix
+row, col = 0, 0
+for word in clustered_words:
+    matrix[row, col] = word
+    col += 1
+    if col == 4:
+        col = 0
+        row += 1
 
 # Output the 4x4 matrix of related words
 print("4x4 Word Similarity Matrix:")
