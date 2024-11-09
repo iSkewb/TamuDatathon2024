@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from itertools import combinations
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cosine
+from k_means_constrained import KMeansConstrained
 
 # Load and process data
 df = pd.read_csv("../data/data_cleaned.csv")
@@ -16,7 +17,7 @@ df = pd.read_csv("../data/data_cleaned.csv")
 df = df.dropna(subset=['Word', 'Group Name'])
 
 # Sample 256 rows for faster training
-df_sample = df.sample(n=256, random_state=42)
+df_sample = df.sample(n=8257, random_state=42)
 
 # Pre-trained embedding model
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -80,7 +81,10 @@ for i in range(len(new_words)):
 
 # Use KMeans clustering to group words into 4 clusters based on similarity
 kmeans = KMeans(n_clusters=4, random_state=42)
-clusters = kmeans.fit_predict(cosine_similarities)
+# clusters = kmeans.fit_predict(cosine_similarities)
+clf = KMeansConstrained(n_clusters=4, size_min=4, size_max=4, random_state=42)
+clusters = clf.fit_predict(cosine_similarities)
+print(clusters)
 
 # Arrange words into 4x4 matrix by cluster
 matrix = np.full((4, 4), None, dtype=object)  # Initialize with None or any placeholder
