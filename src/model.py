@@ -26,6 +26,9 @@ for _, game_group in df.groupby('Game ID'):
         pairs.append(word_pair)
         labels.append(label)
 
+# Ensure all pairs are strings and handle possible NaN values
+pairs = [(str(pair[0]), str(pair[1])) for pair in pairs]
+
 # Get embeddings for each word pair
 X = np.array([np.hstack((model.encode(pair[0]), model.encode(pair[1]))) for pair in pairs])
 y = np.array(labels)
@@ -43,10 +46,19 @@ print("Accuracy:", accuracy_score(y_test, y_pred))
 
 # To predict groups for new words:
 new_words = ["BENT", "GNARLY", "TWISTED", "WARPED", "LICK", "OUNCE", "SHRED", "TRACE", "EXPONENT", "POWER", "RADICAL", "ROOT", "BATH", "POWDER", "REST", "THRONE"]  # example set of 16 words
+
+# Ensure new words are strings
+new_words = [str(word) for word in new_words]
+
+# Get embeddings for new words
 new_embeddings = model.encode(new_words)
+
 pair_predictions = {}
 for (i, j) in combinations(range(len(new_words)), 2):
     pair = (new_words[i], new_words[j])
     features = np.hstack((new_embeddings[i], new_embeddings[j])).reshape(1, -1)
     prediction = clf.predict(features)
     pair_predictions[pair] = prediction
+
+# Output pair predictions
+print(pair_predictions)
