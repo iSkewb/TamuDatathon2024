@@ -1,4 +1,4 @@
 tensorflow
 numpy
 pandas
-sentence transformers
+sentence_transformers
