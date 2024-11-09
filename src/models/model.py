@@ -29,6 +29,7 @@ labels = []
 for _, game_group in df_sample.groupby('Game ID'):
     words = game_group['Word'].tolist()
     groups = game_group['Group Name'].tolist()
+    # print(len(groups))
     
     for (i, j) in combinations(range(len(words)), 2):
         word_pair = (words[i], words[j])
@@ -38,12 +39,16 @@ for _, game_group in df_sample.groupby('Game ID'):
 
 # Ensure all pairs are strings
 pairs = [(str(pair[0]), str(pair[1])) for pair in pairs]
+print(len(pairs))
 
 # Batch encoding of word pairs to speed up the process
+print([pairs[0][0]] + [pairs[0][1]])
 word_embeddings = model.encode([pair[0] for pair in pairs] + [pair[1] for pair in pairs], batch_size=32)
+print(len(word_embeddings))
 
 # Create feature matrix X by concatenating embeddings for each pair (optional)
 X = np.array([np.hstack((word_embeddings[i], word_embeddings[i + len(pairs)])) for i in range(len(pairs))])
+print(len(X))
 y = np.array(labels)
 
 # Optionally reduce the dimensionality of the embeddings (e.g., using PCA)
