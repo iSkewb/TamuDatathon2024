@@ -8,9 +8,11 @@ from itertools import combinations
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cosine
 from k_means_constrained import KMeansConstrained
+from sklearn.linear_model import LogisticRegression
+import matplotlib.pyplot as plt
 
 # Load and process data
-df = pd.read_csv("../data/data_cleaned.csv")
+df = pd.read_csv("../../data/data_cleaned.csv")
 
 # Ensure there are no NaN values in the relevant columns
 df = df.dropna(subset=['Word', 'Group Name'])
@@ -39,16 +41,24 @@ for _, game_group in df_sample.groupby('Game ID'):
 
 # Ensure all pairs are strings
 pairs = [(str(pair[0]), str(pair[1])) for pair in pairs]
-print(len(pairs))
+# print(len(pairs))
 
 # Batch encoding of word pairs to speed up the process
 print([pairs[0][0]] + [pairs[0][1]])
 word_embeddings = model.encode([pair[0] for pair in pairs] + [pair[1] for pair in pairs], batch_size=32)
-print(len(word_embeddings))
+print("Number of embeddings:", len(word_embeddings))
+print(word_embeddings)
+
+plt.figure(figsize=(8, 6))
+plt.scatter(word_embeddings[:, 0], word_embeddings[:, 1], s=50, cmap='viridis')
+plt.title("2D Representation of Embedding Similarity (PCA)")
+plt.xlabel("PCA Component 1")
+plt.ylabel("PCA Component 2")
+plt.show()
 
 # Create feature matrix X by concatenating embeddings for each pair (optional)
 X = np.array([np.hstack((word_embeddings[i], word_embeddings[i + len(pairs)])) for i in range(len(pairs))])
-print(len(X))
+# print(len(X))
 y = np.array(labels)
 
 # Optionally reduce the dimensionality of the embeddings (e.g., using PCA)
@@ -59,10 +69,10 @@ X_reduced = pca.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split(X_reduced, y, test_size=0.2, random_state=42)
 
 # Train a classifier (optional for evaluation)
-# clf = LogisticRegression(max_iter=1000)
-# clf.fit(X_train, y_train)
-# y_pred = clf.predict(X_test)
-# print("Accuracy:", accuracy_score(y_test, y_pred))
+clf = LogisticRegression(max_iter=1000)
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
 
 # To predict groups for new words:
 new_words = ["BENT", "GNARLY", "TWISTED", "WARPED", "LICK", "OUNCE", "SHRED", "TRACE", "EXPONENT", "POWER", "RADICAL", "ROOT", "BATH", "POWDER", "REST", "THRONE"]
@@ -72,6 +82,13 @@ new_words = [str(word) for word in new_words]
 
 # Get embeddings for new words (in batch)
 new_embeddings = model.encode(new_words, batch_size=32)
+
+# plt.figure(figsize=(8, 6))
+# plt.scatter(new_embeddings[:, 0], new_embeddings[:, 1], s=50, cmap='viridis')
+# plt.title("2D Representation of Embedding Similarity (PCA)")
+# plt.xlabel("PCA Component 1")
+# plt.ylabel("PCA Component 2")
+# plt.show()
 
 # Calculate pairwise cosine similarities
 cosine_similarities = np.zeros((len(new_words), len(new_words)))
@@ -84,6 +101,7 @@ for i in range(len(new_words)):
 # Use KMeans clustering to group words into 4 clusters based on similarity
 clf = KMeansConstrained(n_clusters=4, size_min=4, size_max=4, random_state=42)
 clusters = clf.fit_predict(cosine_similarities)
+print(clusters)
 
 # Ensure the clusters are valid (4 groups with 4 words each)
 assert len(set(clusters)) == 4, "Clusters should have exactly 4 groups."
