@@ -32,7 +32,7 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 	#region Word-embedding function attribute
 	if not hasattr(model, "words_and_embeds"):
 		print("Loading model...")
-		ft = fasttext.load_model('/fastText/cc.en.300.bin')
+		ft = fasttext.load_model('./fastText/cc.en.300.bin')
 		ft.get_dimension()
 		fasttext.util.reduce_model(ft, 100)
 		ft.get_dimension()
