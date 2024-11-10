@@ -32,7 +32,7 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 	#region Word-embedding function attribute
 	if not hasattr(model, "words_and_embeds"):
 		print("Loading model...")
-		ft = fasttext.load_model('/Users/davidhunt/Documents/fastText/cc.en.300.bin')
+		ft = fasttext.load_model('/fastText/cc.en.300.bin')
 		ft.get_dimension()
 		fasttext.util.reduce_model(ft, 100)
 		ft.get_dimension()
@@ -144,6 +144,7 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 		model.focus_cluster = increment_counter(model.focus_cluster)
 		guess = sorted_clusters[model.focus_cluster]
 
+	print(guess)
 	return guess, False
 
 	#endregion
@@ -151,3 +152,5 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 	# Example code where guess is hard-coded
 	# guess = ["apples", "bananas", "oranges", "grapes"] # 1D Array with 4 elements containing guess
 	# endTurn = False # True if you want to end puzzle and skip to the next one
+
+model(["BENT", "GNARLY", "TWISTED", "WARPED", "LICK", "OUNCE", "SHRED", "TRACE", "EXPONENT", "POWER", "RADICAL", "ROOT", "BATH", "POWDER", "REST", "THRONE"], 0, False, [], [], 0)
