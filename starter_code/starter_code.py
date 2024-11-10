@@ -125,21 +125,24 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 				# Break the loop if a guess is not one-off
 				break
 
+	def increment_counter(x):
+		return (x + 1) % len(sorted_clusters)
 
 	if not previousGuesses or (previousGuesses[-1] == correctGroups[-1]): # if no previous guesses or the last guess was correct
 		model.focus_cluster = 0
-		guess = sorted_clusters[0] # guess the most cohesive cluster remaining
-		return guess, False
+		guess = sorted_clusters[model.focus_cluster] # guess the most cohesive cluster remaining
 
 	if (isOneAway and one_off_streak == 1): # if the previous guess was one-off but no previous ones were
 		guess = previousGuesses[-1]
 		guess[find_most_dissimilar(guess)] = (find_next_similar(words, guess))
-		model.focus_cluster += 1
-		return guess, False
 	
 	if (isOneAway and one_off_streak > 1 or not isOneAway): # if there have been consecutive one-off guesses
+		model.focus_cluster += 1
 		guess = sorted_clusters[model.focus_cluster]
-		return guess, False
+
+	while (guess in previousGuesses):
+		model.focus_cluster += 1
+		guess = sorted_clusters[model.focus_cluster]
 	
 
 
