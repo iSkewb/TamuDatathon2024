@@ -136,15 +136,15 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 		guess = previousGuesses[-1]
 		guess[find_most_dissimilar(guess)] = (find_next_similar(words, guess))
 	
-	if (isOneAway and one_off_streak > 1 or not isOneAway): # if there have been consecutive one-off guesses
-		model.focus_cluster += 1
+	if (isOneAway and one_off_streak > 1 or not isOneAway): # if there have been consecutive one-off guesses or if the last guess was more than one off
+		model.focus_cluster = increment_counter(model.focus_cluster) # move to the next cluster
 		guess = sorted_clusters[model.focus_cluster]
 
 	while (guess in previousGuesses):
-		model.focus_cluster += 1
+		model.focus_cluster = increment_counter(model.focus_cluster)
 		guess = sorted_clusters[model.focus_cluster]
-	
 
+	return guess, False
 
 	#endregion
 
@@ -152,4 +152,7 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 	# guess = ["apples", "bananas", "oranges", "grapes"] # 1D Array with 4 elements containing guess
 	# endTurn = False # True if you want to end puzzle and skip to the next one
 
+<<<<<<< Updated upstream
 	return guess, False
+=======
+>>>>>>> Stashed changes
