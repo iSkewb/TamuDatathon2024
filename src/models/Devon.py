@@ -14,6 +14,8 @@ words = ["BENT", "GNARLY", "TWISTED", "WARPED", "LICK", "OUNCE", "SHRED", "TRACE
 # Filter words to include only those in the Word2Vec vocabulary
 filtered_words = [word for word in words if word in model.wv]
 
+print(common_texts)
+
 # Check if filtered_words is not empty
 if filtered_words:
     # Generate vectors for each word in the filtered list
