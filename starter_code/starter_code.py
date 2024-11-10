@@ -1,31 +1,3 @@
-from flask import Flask, request, jsonify
-
-app  = Flask(__name__)
-
-@app.route('/', methods=['POST'])
-def process_game_status():
-	# Receive the JSON data from the incoming POST request
-    data = request.get_json()
-
-    # Extract the input fields for the model
-    words = data.get("words", [])
-    strikes = data.get("strikes", 0)
-    is_one_away = data.get("isOneAway", False)
-    correct_groups = data.get("correctGroups", [])
-    previous_guesses = data.get("previousGuesses", [])
-
-    # Process these inputs with your model
-    guess, end_turn = model(words, strikes, is_one_away, correct_groups, previous_guesses)
-
-    # Prepare the output in the required format
-    response = {
-        "guess": guess,
-        "endTurn": end_turn
-    }
-
-    # Send the response back as JSON
-    return jsonify(response)
-
 def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 	"""
 	_______________________________________________________
@@ -181,6 +153,3 @@ def model(words, strikes, isOneAway, correctGroups, previousGuesses, error):
 	# endTurn = False # True if you want to end puzzle and skip to the next one
 
 	return guess, False
-
-if __name__ == '__main__':
-	app.run()
