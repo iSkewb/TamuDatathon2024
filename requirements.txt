@@ -3,3 +3,5 @@ numpy
 pandas
 sentence_transformers
 nltk
+requests
+fasttext
